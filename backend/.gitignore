@@ -1,0 +1,16 @@
+.env
+idyllic-kit-449609-h0-0836f31bb111.json
+gold-circlet-462715-r4-ca81c3998d03.json
+__pycache__
+venv/
+.venv/
+lib/
+lib64/
+*.csv
+.env
+*.mp4
+*.webm
+*.json
+lib/
+.venv/
+myfastapienv/

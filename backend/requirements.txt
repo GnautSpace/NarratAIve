@@ -4,7 +4,9 @@ python-dotenv
 pydantic
 pandas
 numpy
-sentence-transformers
+torch==2.1.0+cpu
+sentence-transformers==2.6.1
+--extra-index-url https://download.pytorch.org/whl/cpu
 scikit-learn
 pymongo
 requests

@@ -6,8 +6,10 @@ const SearchReports = ({ onSelect }) => {
     const [res, setRes] = useState([]);
 
     const search = async () => {
+        const API = import.meta.env.VITE_API_URL;
+
         if (!q.trim()) return;
-        const response = await fetch("https://super-duper-winner-7vvjj4p6q756crqwr-8000.app.github.dev/vector_search", {
+        const response = await fetch(`${API}/vector_search`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

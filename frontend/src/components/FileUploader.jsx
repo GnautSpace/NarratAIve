@@ -5,6 +5,8 @@ const FileUploader = ({onUpload}) => {
   const [response, setResponse] = useState("");
 
   const handleUpload = async () => {
+    const API = import.meta.env.VITE_API_URL;
+
     try{
       if (!file) return;
 
@@ -12,7 +14,7 @@ const FileUploader = ({onUpload}) => {
     formData.append("file", file);
      //const authToken = localStorage.getItem('authToken');
 
-    const response = await fetch("https://super-duper-winner-7vvjj4p6q756crqwr-8000.app.github.dev/upload_file", {
+    const response = await fetch(`${API}/upload_file`, {
       method: "POST",
       body: formData,
       /*headers: {

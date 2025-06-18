@@ -11,20 +11,15 @@ from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 from sentence_transformers import SentenceTransformer
 from pydantic import BaseModel
-
+import sys
 
 import requests
 import pandas as pd
 import numpy as np
-#from flask import Flask
-#from flask_cors import CORS
-
-    
-    
 
 app=FastAPI()
 
-#CORS(app, origins="https://super-duper-winner-7vvjj4p6q756crqwr-5173.app.github.dev")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -39,7 +34,18 @@ load_dotenv()
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+#model = SentenceTransformer("all-MiniLM-L6-v2")
+
+_sentence_transformer_model_instance = None
+
+def get_sentence_transformer_model():
+    global _sentence_transformer_model_instance
+    if _sentence_transformer_model_instance is None:
+        print("Loading SentenceTransformer model 'all-MiniLM-L6-v2'...")
+        _sentence_transformer_model_instance = SentenceTransformer("all-MiniLM-L6-v2")
+    return _sentence_transformer_model_instance
+
+
 
 MONGODB_URI = os.getenv("MONGODB_URI")
 
@@ -49,14 +55,13 @@ db = client["narrative_db"]
 collection = db["reports"]
 
 
-
 @app.get("/")
 async def read_root():
     return {"Hello" : "World"}
 
 
 @app.post("/upload_file")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...),st_model: SentenceTransformer = Depends(get_sentence_transformer_model) ):
     contents = await file.read()
     text = contents.decode("utf-8", errors="ignore")
 
@@ -67,7 +72,7 @@ async def upload_file(file: UploadFile = File(...)):
 
 
     narrative = generate_narrative_gemini(df)
-    embedding = model.encode(narrative).tolist()
+    embedding = st_model.encode(narrative).tolist()
 
     metadata = {
         "rows": df.shape[0],
@@ -129,9 +134,9 @@ class QueryRequest(BaseModel):
     query: str
 
 @app.post("/vector_search")
-async def vector_search(req: QueryRequest):
+async def vector_search(req: QueryRequest,st_model: SentenceTransformer = Depends(get_sentence_transformer_model)):
     q=req.query
-    qy_embedding=model.encode(q).tolist()
+    qy_embedding = st_model.encode(q).tolist()
     pipeline=[
         {
             "$search": {
